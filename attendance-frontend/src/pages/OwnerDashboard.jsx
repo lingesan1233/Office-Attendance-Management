@@ -6,6 +6,7 @@ function OwnerDashboard() {
   const [attendance, setAttendance] = useState([]);
   const [tasks, setTasks] = useState([]);
   const [employees, setEmployees] = useState([]);
+  const [leaves, setLeaves] = useState([]);
 
   const [empName, setEmpName] = useState("");
   const [empEmail, setEmpEmail] = useState("");
@@ -36,6 +37,14 @@ function OwnerDashboard() {
 
     const res = await API.get("/auth/employees");
     setEmployees(res.data);
+
+  };
+
+
+  const getLeaves = async () => {
+
+    const res = await API.get("/leave/all");
+    setLeaves(res.data);
 
   };
 
@@ -94,11 +103,31 @@ function OwnerDashboard() {
   };
 
 
+  const updateLeaveStatus = async (id, status) => {
+
+    try {
+
+      await API.put(`/leave/${id}`, { status });
+
+      alert("Leave status updated");
+
+      getLeaves();
+
+    } catch {
+
+      alert("Failed to update leave");
+
+    }
+
+  };
+
+
   useEffect(() => {
 
     getAttendance();
     getTasks();
     getEmployees();
+    getLeaves();
 
   }, []);
 
@@ -109,7 +138,6 @@ function OwnerDashboard() {
     <div className="container">
 
       <h2>Owner Dashboard</h2>
-
 
 
       <h3>Create Employee</h3>
@@ -259,6 +287,52 @@ function OwnerDashboard() {
 
         </tbody>
 
+      </table>
+
+
+
+      <h3>Leave Requests</h3>
+
+      <table>
+
+        <thead>
+          <tr>
+            <th>Employee</th>
+            <th>Reason</th>
+            <th>Days</th>
+            <th>Status</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+
+        <tbody>
+
+          {leaves.map((leave) => (
+
+            <tr key={leave._id}>
+
+              <td>{leave.employeeId?.name}</td>
+              <td>{leave.reason}</td>
+              <td>{leave.days}</td>
+              <td>{leave.status}</td>
+
+              <td>
+
+                <button onClick={() => updateLeaveStatus(leave._id, "Approved")}>
+                  Approve
+                </button>
+
+                <button onClick={() => updateLeaveStatus(leave._id, "Rejected")}>
+                  Reject
+                </button>
+
+              </td>
+
+            </tr>
+
+          ))}
+
+        </tbody>
 
       </table>
 
